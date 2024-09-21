@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<sdf version="1.4">
+	<world name="aip_world">
+	 <!-- Physics, to determine the simulation speed (step size and update rate) -->
+		<physics type="ode">
+			<max_step_size>0.004</max_step_size>
+			<real_time_factor>1</real_time_factor>
+			<real_time_update_rate>300</real_time_update_rate>
+		</physics>
+
+    <scene>
+      <ambient>0.5 0.5 0.5 1.0</ambient>
+      <shadows>0</shadows>
+    </scene>
+
+
+    <!-- Ground Plane -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+    <!-- Field  -->
+    <include>
+      <uri>model://aip_field_line</uri>
+    </include>
+
+
+    <!-- Light -->
+    <light name="light" type="point">
+      <cast_shadows>false</cast_shadows>
+      <pose>-12 3 1 0 0 0</pose>
+      <diffuse>127 127 127 255</diffuse>
+      <specular>25 25 25 255</specular>
+      <attenuation>
+    <range>20.0</range>
+    <linear>0.01</linear>
+    <constant>0.7</constant>
+    <quadratic>0.00</quadratic>
+      </attenuation>
+    </light>
+
+		<!-- robotinos -->
+		<!-- Robotino 1 -->
+		<include>
+			<uri>model://robotino</uri>
+			<pose>0 0 0 0 0 0</pose>
+			<name>robotino1</name>
+		</include>
+
+
+		<!-- Top camera (for supervision) - static, so no link needed-->
+		<include>
+			<uri>model://overview_cam_ros</uri>
+            <pose>0 0 7 0 0 0</pose>
+			<name>top_camera</name>
+		</include>
+
+
+
+	</world>
+</sdf>
