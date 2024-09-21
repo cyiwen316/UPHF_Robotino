@@ -1,2 +1,2 @@
-# gazebo_robotino_ros_pkg
+# A Robotino simulation of ROS by gazabo
 
