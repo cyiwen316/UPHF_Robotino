@@ -1,0 +1,78 @@
+<!--
+
+     export GAZEBO_MODEL_PATH=$GAZEBO_MODEL_PATH:/home/vincent/gazebo_mrt/models
+ -->
+<launch>
+
+    <env name="ROSCONSOLE_CONFIG_FILE" value="$(find gazebo_robotino_ros_pkg)/cfg/custom_rosconsole.conf"/>
+    <!-- Configurable args -->
+    <arg name="sim" default="true" />
+    <arg name="use_gui" default="false" />
+    <arg name="gazebo_verbose" default="false" />
+
+    <!-- Sensors simulated positions (constant args) -->
+    <arg if="$(arg sim)" name="tf_laser_x" value="0.085" />
+    <arg if="$(arg sim)" name="tf_laser_y" value="0.0" />
+    <arg if="$(arg sim)" name="tf_laser_z" value="0.15" />
+
+    <arg if="$(arg sim)" name="tf_cam_x" value="0.045" />
+    <arg if="$(arg sim)" name="tf_cam_y" value="0.0" />
+    <arg if="$(arg sim)" name="tf_cam_z" value="0.22" />
+
+    <!-- Others constant args -->
+    <arg if="$(arg sim)" name="use_tf_prefix" value="false"/>
+
+    <!-- ROSCONSOLE Config -->
+    <env name="ROSCONSOLE_FORMAT" value="[${time}] [${node}]:${message}"/>
+
+
+    <!-- Gazebo -->
+    <include if="$(arg sim)" file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(find gazebo_robotino_ros_pkg)/worlds/field_aip_line.world"/>
+        <arg name="paused" value="false"/>
+        <arg name="use_sim_time" value="true"/>
+        <arg name="extra_gazebo_args" default=""/>
+        <arg name="gui" value="false"/>
+        <arg name="headless" value="false"/>
+        <arg name="debug" value="false"/>
+        <arg name="physics" default="ode"/>
+        <arg name="verbose" default="false"/>
+    </include>
+
+
+    <!-- Robotino Pyro 1 -->
+    <group ns="robotino1">
+        <arg name="robotNamespace" value="robotino1"/>
+
+                                                            <!-- Added slash is MANDATORY -->
+        <arg if="$(arg use_tf_prefix)"     name="tf_prefix" value="$(arg robotNamespace)/"/>
+        <arg unless="$(arg use_tf_prefix)" name="tf_prefix" value=""/>
+
+        <param if="$(arg sim)" name="simuRobotNamespace" value="$(arg robotNamespace)" />
+        <param unless="$(arg sim)" name="simuRobotNamespace" value="" />
+
+        <!-- <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
+            args="-file $(find gazebo_robotino_ros_pkg)/robotino/RobotinoModel/urdf/robotino.urdf
+                    -urdf -z 1 -model robotino1
+                    prefix:=$(arg tf_prefix)
+                    robotns:=robotino1" /> -->
+
+
+
+        <node pkg="tf" type="static_transform_publisher" name="base_link_to_laser_link"
+              respawn="true" output="log"
+              args="$(arg tf_laser_x) $(arg tf_laser_y) $(arg tf_laser_z)
+              0 0 0
+              $(arg tf_prefix)base_link $(arg tf_prefix)laser_link   100" />
+
+      <node pkg="tf" type="static_transform_publisher" name="base_link_to_platform_camera_link"
+            respawn="true" output="log"
+            args="$(arg tf_cam_x) $(arg tf_cam_y) $(arg tf_cam_z)
+          -1.57 0 -1.57
+          $(arg tf_prefix)base_link $(arg tf_prefix)camera_link   100" />
+
+
+    </group>
+    <node name="line_sensor" pkg="gazebo_robotino_ros_pkg" type="line_sensor.py" />
+
+</launch>
